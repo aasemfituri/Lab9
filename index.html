@@ -28,14 +28,14 @@
 <body>
   <fieldset>
     <legend>Error Calculator</legend>
-    <input type="number" name="first-num" id="first-num" />
+    <input name="first-num" id="first-num" />
     <select name="operator" id="operator">
       <option>+</option>
       <option>-</option>
       <option>*</option>
       <option>/</option>
     </select>
-    <input type="number" name="second-num" id="second-num" />
+    <input name="second-num" id="second-num" />
     <button id="calculate">Calculate</button>
     <br />
     <output></output>
@@ -46,7 +46,6 @@
     <button>Console Error Demo</button>
     <button>Console Dir</button>
     <button>Console dirxml</button>
-    <button>Console Error</button>
     <button>Console Group Start</button>
     <button>Console Group End</button>
     <button>Console Table</button>
@@ -55,19 +54,107 @@
     <button>Console Trace</button>
     <button>Trigger a Global Error</button>
   </section>
-
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "47bf159733894fa0ad877444cc10e7de"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+  <script>
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      }
+      catch (err) {
+        if(isNaN(firstNum) || isNaN(secondNum)) {
+          output.innerHTML = 0;
+        }
+        else {
+          if(firstNum === '') {
+          firstNum = 0;
+        }
+        if (secondNum === '') {
+          secondNum = 0;
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+        }
+      }
+      finally {
+        console.log('Inputs set to 0 if empty. Output set to 0 if one or more inputs are invalid and results are calculated');
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+    let consoleLogDemo = errorBtns[0];
+    consoleLogDemo.addEventListener('click', () => {
+      console.log('This button works')
+    });
+    let consoleErrorDemo = errorBtns[1];
+    consoleErrorDemo.addEventListener('click', () => {
+      console.error('Something went wrong');
+    });
+    let consoleDir = errorBtns[2];
+    consoleDir.addEventListener('click', () => {
+      console.dir(document.querySelector('fieldset'));
+    });
+    let consoleDirXML = errorBtns[3];
+    consoleDirXML.addEventListener('click', () => {
+      console.dirxml(document.querySelector('section'));
+    });
+    let consoleGroupLabel = errorBtns[4];
+    consoleGroupLabel.addEventListener('click', () => {
+      console.group('Group')
+    });
+    let consoleGroupEnd = errorBtns[5];
+    consoleGroupEnd.addEventListener('click', () => {
+      console.groupEnd('Group');
+    })
+    let consoleTable = errorBtns[6];
+    consoleTable.addEventListener('click', () => {
+      let teams = [{name: 'Lakers', location: 'LA'}, {name: 'Suns', location: 'Phoenix'}, {name: 'Celtics', location: 
+    'Boston'}];
+      console.table(teams);
+    });
+    let startTimer = errorBtns[7];
+    startTimer.addEventListener('click', () => {
+      console.log('Start Timer')
+      console.time();
+    });
+    let endTimer = errorBtns[8];
+    endTimer.addEventListener('click', () => {
+      console.log('End Timer');
+      console.timeEnd();
+    });
+    let consoleTrace = errorBtns[9];
+    consoleTrace.addEventListener('click', () => {
+      let func1 = function () {
+        func2();
+      }
+      let func2 = function () {
+        console.trace();
+      }
+      func1();
+    });
+    let globalError = errorBtns[10];
+    globalError.addEventListener('click', () => {
+      throw new CustomError('Global Error triggered');
+    });
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log('Using window.onerror');
+    }
   </script>
 </body>
 </html>
